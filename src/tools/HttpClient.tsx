@@ -6,7 +6,7 @@ import type { Tool, User } from "@/types"
 import { logUsage } from "@/lib/api"
 import { Send } from "lucide-react"
 
-const API_BASE = "http://localhost:3001/api"
+const API_BASE = "/api"
 
 export default function HttpClient({ tool, user }: { tool: Tool; user: User }) {
   const [url, setUrl] = useState("")

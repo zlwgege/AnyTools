@@ -5,7 +5,7 @@ import type { Tool, User } from "@/types"
 import { logUsage } from "@/lib/api"
 import { Search } from "lucide-react"
 
-const API_BASE = "http://localhost:3001/api"
+const API_BASE = "/api"
 
 export default function DnsLookup({ tool, user }: { tool: Tool; user: User }) {
   const [domain, setDomain] = useState("")

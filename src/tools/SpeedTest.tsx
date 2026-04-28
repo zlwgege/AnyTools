@@ -194,6 +194,38 @@ export default function SpeedTest({ tool, user }: { tool: Tool; user: User }) {
   const abortRef = useRef(false)
 
   // Auto-detect location and best node on mount
+async function fetchLocation(): Promise<LocationInfo | null> {
+  // Primary: ipapi.co
+  try {
+    const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(8000) })
+    if (res.ok) {
+      const data = await res.json()
+      return {
+        country: data.country_name || data.country || "未知",
+        countryCode: data.country_code || "",
+        city: data.city || "",
+      }
+    }
+  } catch {
+    // fallback
+  }
+  // Fallback: ipinfo.io (no key needed for basic info)
+  try {
+    const res = await fetch("https://ipinfo.io/json", { signal: AbortSignal.timeout(8000) })
+    if (res.ok) {
+      const data = await res.json()
+      return {
+        country: data.country_name || data.country || "未知",
+        countryCode: data.country || "",
+        city: data.city || "",
+      }
+    }
+  } catch {
+    // fallback
+  }
+  return null
+}
+
   useEffect(() => {
     let cancelled = false
 
@@ -201,20 +233,7 @@ export default function SpeedTest({ tool, user }: { tool: Tool; user: User }) {
       setIsDetecting(true)
 
       // 1. Get location from IP
-      let loc: LocationInfo | null = null
-      try {
-        const res = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(5000) })
-        if (res.ok) {
-          const data = await res.json()
-          loc = {
-            country: data.country_name || data.country || "未知",
-            countryCode: data.country_code || "",
-            city: data.city || "",
-          }
-        }
-      } catch {
-        // fallback
-      }
+      let loc: LocationInfo | null = await fetchLocation()
       if (cancelled) return
       setLocation(loc)
 
