@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.js"
 import logRoutes from "./routes/logs.js"
 import networkRoutes from "./routes/network.js"
 import favoritesRoutes from "./routes/favorites.js"
+import binLabelsRoutes from "./routes/binLabels.js"
 
 const app = express()
 const PORT = Number(process.env.PORT) || 3001
@@ -16,6 +17,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/logs", logRoutes)
 app.use("/api/network", networkRoutes)
 app.use("/api/favorites", favoritesRoutes)
+app.use("/api/bin-labels", binLabelsRoutes)
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() })

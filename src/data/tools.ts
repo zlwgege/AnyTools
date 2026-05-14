@@ -27,6 +27,7 @@ import {
   Network,
   Barcode,
   Gauge,
+  Boxes,
 } from "lucide-react"
 import type { Tool, CategoryInfo, ToolCategory } from "@/types"
 
@@ -160,6 +161,16 @@ export const tools: Tool[] = [
   },
 
   // 图像工具
+  {
+    id: "bin-location-generator",
+    name: "库位码生成",
+    description: "批量导入库位码，生成含条码和方向箭头的 PDF 标签",
+    icon: Boxes,
+    category: "image",
+    tags: ["库位码", "条码", "PDF", "批量"],
+    path: "/tools/bin-location-generator",
+    isNew: true,
+  },
   {
     id: "barcode-generator",
     name: "条码生成器",

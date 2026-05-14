@@ -34,6 +34,7 @@ const toolComponents: Record<string, React.LazyExoticComponent<React.FC<{ tool: 
   "dns-lookup": lazy(() => import("@/tools/DnsLookup")),
   "ping-test": lazy(() => import("@/tools/PingTest")),
   "speed-test": lazy(() => import("@/tools/SpeedTest")),
+  "bin-location-generator": lazy(() => import("@/tools/BinLocationGenerator")),
 }
 
 export default function ToolPage() {

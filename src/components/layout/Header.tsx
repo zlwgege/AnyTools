@@ -1,4 +1,5 @@
 import { Search, Sun, Moon, Menu, LogOut, User as UserIcon } from "lucide-react"
+import { VersionLogButton } from "@/components/VersionLog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
@@ -79,6 +80,8 @@ export function Header({
       </div>
 
       <div className="flex items-center gap-2">
+        <VersionLogButton />
+
         <Button
           variant="ghost"
           size="icon"

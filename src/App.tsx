@@ -6,6 +6,7 @@ import { LoginPage } from "@/pages/LoginPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { HomePage } from "@/pages/HomePage"
 import ToolPage from "@/pages/ToolPage"
+import VersionLogPage from "@/pages/VersionLogPage"
 
 function App() {
   const { theme, toggleTheme } = useTheme()
@@ -48,6 +49,7 @@ function App() {
         }
       />
       <Route path="/tools/:toolId" element={<ToolPage />} />
+      <Route path="/version-log" element={<VersionLogPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

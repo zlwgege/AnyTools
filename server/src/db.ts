@@ -41,6 +41,19 @@ db.exec(`
     PRIMARY KEY (user_id, tool_id),
     FOREIGN KEY (user_id) REFERENCES users(id)
   );
+
+  CREATE TABLE IF NOT EXISTS bin_labels (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    data TEXT NOT NULL,
+    count INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now', 'localtime')),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_bin_labels_user ON bin_labels(user_id);
+  CREATE INDEX IF NOT EXISTS idx_bin_labels_time ON bin_labels(created_at);
 `);
 
 // Seed users if empty
