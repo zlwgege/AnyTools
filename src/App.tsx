@@ -11,11 +11,11 @@ import AdminPage from "@/pages/AdminPage"
 
 function App() {
   const { theme, toggleTheme } = useTheme()
-  const { user, users, isLoading, loginError, login, logout, isAdmin } = useAuth()
+  const { user, isLoading, loginError, login, logout, isAdmin, newAccountInfo, clearNewAccountInfo } = useAuth()
   const { favorites, recentIds, toggleFavorite, addRecent } = useFavorites(user?.id)
 
-  if (!user) {
-    return <LoginPage users={users} onLogin={login} isLoading={isLoading} error={loginError} />
+  if (!user || newAccountInfo) {
+    return <LoginPage onLogin={login} isLoading={isLoading} error={loginError} newAccountInfo={newAccountInfo} onClearNewAccountInfo={clearNewAccountInfo} />
   }
 
   return (
@@ -28,6 +28,7 @@ function App() {
             onToggleTheme={toggleTheme}
             userName={user.name}
             onLogout={logout}
+            isAdmin={isAdmin}
           />
         }
       />

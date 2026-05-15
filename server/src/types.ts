@@ -3,6 +3,8 @@ export interface DbUser {
   name: string
   role: "user" | "admin"
   department: string
+  wechat_id: string | null
+  password: string | null
   created_at: string
 }
 

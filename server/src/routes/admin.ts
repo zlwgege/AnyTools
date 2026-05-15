@@ -17,16 +17,16 @@ function requireAdmin(req: any, res: any, next: any) {
 
 // GET /api/admin/users
 router.get("/users", requireAdmin, (_req, res) => {
-  const users = db.prepare("SELECT id, name, role, department, created_at FROM users ORDER BY created_at DESC").all() as DbUser[]
+  const users = db.prepare("SELECT id, name, role, department, wechat_id, created_at FROM users ORDER BY created_at DESC").all() as DbUser[]
   res.json({ users })
 })
 
 // POST /api/admin/users
 router.post("/users", requireAdmin, (req, res) => {
-  const { id, name, role, department } = req.body
+  const { id, name, role, department, wechat_id, password } = req.body
   if (!id || !name || !role) return res.status(400).json({ error: "id, name, role are required" })
   try {
-    db.prepare("INSERT INTO users (id, name, role, department) VALUES (?, ?, ?, ?)").run(id, name, role, department || "")
+    db.prepare("INSERT INTO users (id, name, role, department, wechat_id, password) VALUES (?, ?, ?, ?, ?, ?)").run(id, name, role, department || "", wechat_id || null, password || id)
     res.json({ message: "User created" })
   } catch (e: any) {
     res.status(400).json({ error: e.message })

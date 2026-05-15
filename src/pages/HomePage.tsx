@@ -12,9 +12,10 @@ interface HomePageProps {
   onToggleTheme: () => void
   userName: string
   onLogout: () => void
+  isAdmin?: boolean
 }
 
-export function HomePage({ theme, onToggleTheme, userName, onLogout }: HomePageProps) {
+export function HomePage({ theme, onToggleTheme, userName, onLogout, isAdmin }: HomePageProps) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-pink-50/30">
       {/* Soft gradient orbs */}
@@ -46,6 +47,7 @@ export function HomePage({ theme, onToggleTheme, userName, onLogout }: HomePageP
         onLogout={onLogout}
         searchQuery={""}
         onSearchChange={() => {}}
+        isAdmin={isAdmin}
       />
 
       {/* Main Content */}
@@ -129,7 +131,7 @@ export function HomePage({ theme, onToggleTheme, userName, onLogout }: HomePageP
           <div className="h-px w-12 bg-slate-200" />
         </div>
         <p className="mt-3 text-center text-[10px] text-slate-300">
-          ToolBox · 开发者工具门户
+          ToolBox · 开发者工具门户 · 大帅哥出品，必属精品
         </p>
       </main>
     </div>

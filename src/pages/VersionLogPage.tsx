@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Tag, Calendar, ListChecks } from "lucide-react"
 
-export const CURRENT_VERSION = "1.0.1"
+export const CURRENT_VERSION = "1.0.2"
 
 interface VersionEntry {
   version: string
@@ -13,6 +13,20 @@ interface VersionEntry {
 }
 
 const VERSION_LOGS: VersionEntry[] = [
+  {
+    version: "1.0.2",
+    date: "2026-05-15",
+    content: [
+      "登录页 Tab 顺序调整为：游客访问、账号密码、企微登录",
+      "企微扫码登录逻辑重构：首次企微ID自动创建普通用户并绑定，提示帐号和默认密码",
+      "已绑定企微ID的用户再次扫码可直接登录",
+      "用户表新增 wechat_id 和 password 字段，支持企微帐号绑定",
+      "修复管理员登录后无法看到管理后台入口的问题",
+      "Header 用户下拉菜单新增管理后台快捷入口（管理员可见）",
+      "账号密码登录支持用户名或用户ID登录",
+      "修复 network.ts 中 dns.RecordType 类型错误",
+    ],
+  },
   {
     version: "1.0.1",
     date: "2026-05-12",
@@ -96,7 +110,7 @@ export default function VersionLogPage() {
 
         {/* Footer */}
         <div className="mt-10 text-center text-xs text-muted-foreground">
-          ToolBox 开发者工具门户 · 持续迭代中
+          ToolBox 开发者工具门户 · 持续迭代中 · 大帅哥出品，必属精品
         </div>
       </div>
     </div>

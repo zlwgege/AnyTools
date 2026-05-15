@@ -29,16 +29,17 @@ function recordSession(userId: string, loginType: "wechat" | "password" | "guest
 }
 
 router.get("/users", (_req, res) => {
-  const users = db.prepare("SELECT id, name, role, department FROM users").all() as DbUser[]
+  const users = db.prepare("SELECT id, name, role, department, wechat_id FROM users").all() as DbUser[]
   res.json(users)
 })
 
 router.post("/login", (req, res) => {
-  const { type, userId, username, password } = req.body as {
+  const { type, userId, username, password, wechatId } = req.body as {
     type?: string
     userId?: string
     username?: string
     password?: string
+    wechatId?: string
   }
 
   // Guest login
@@ -49,33 +50,56 @@ router.post("/login", (req, res) => {
     return res.json(guestUser)
   }
 
-  // WeChat login (mock - use userId for demo)
+  // WeChat login
   if (type === "wechat") {
-    if (!userId) return res.status(400).json({ error: "userId is required" })
-    const user = db.prepare("SELECT id, name, role, department FROM users WHERE id = ?").get(userId) as DbUser | undefined
-    if (!user) return res.status(404).json({ error: "User not found" })
-    recordSession(user.id, "wechat", req)
-    return res.json(user)
+    if (!wechatId) return res.status(400).json({ error: "wechatId is required" })
+
+    // Check if this wechatId is already bound to a user
+    const existingUser = db.prepare("SELECT id, name, role, department, wechat_id FROM users WHERE wechat_id = ?").get(wechatId) as DbUser | undefined
+
+    if (existingUser) {
+      // Already bound - login with this user
+      recordSession(existingUser.id, "wechat", req)
+      return res.json({ user: { id: existingUser.id, name: existingUser.name, role: existingUser.role, department: existingUser.department, wechat_id: existingUser.wechat_id } })
+    }
+
+    // New WeChat ID - auto-create a regular user
+    const newUserId = `user-${Date.now()}`
+    const defaultPassword = newUserId
+    const defaultName = `企微用户${Date.now().toString().slice(-4)}`
+
+    db.prepare(
+      "INSERT INTO users (id, name, role, department, wechat_id, password) VALUES (?, ?, 'user', '待设置', ?, ?)"
+    ).run(newUserId, defaultName, wechatId, defaultPassword)
+
+    recordSession(newUserId, "wechat", req)
+
+    return res.json({
+      user: { id: newUserId, name: defaultName, role: "user", department: "待设置", wechat_id: wechatId },
+      isNewAccount: true,
+      defaultPassword,
+    })
   }
 
   // Password login
   if (type === "password") {
     if (!username || !password) return res.status(400).json({ error: "username and password are required" })
-    // Simple demo: username maps to user id, password must match username
-    const user = db.prepare("SELECT id, name, role, department FROM users WHERE name = ?").get(username) as DbUser | undefined
+    // Find user by name or id
+    const user = db.prepare("SELECT id, name, role, department, wechat_id, password FROM users WHERE name = ? OR id = ?").get(username, username) as (DbUser & { password: string | null }) | undefined
     if (!user) return res.status(404).json({ error: "User not found" })
-    // Demo password check: password equals user id
-    if (password !== user.id) return res.status(401).json({ error: "Invalid password" })
+    // Password check: password field or fallback to user id
+    const validPassword = user.password || user.id
+    if (password !== validPassword) return res.status(401).json({ error: "Invalid password" })
     recordSession(user.id, "password", req)
-    return res.json(user)
+    return res.json({ user: { id: user.id, name: user.name, role: user.role, department: user.department, wechat_id: user.wechat_id } })
   }
 
   // Legacy fallback: just userId (for backward compatibility)
   if (userId) {
-    const user = db.prepare("SELECT id, name, role, department FROM users WHERE id = ?").get(userId) as DbUser | undefined
+    const user = db.prepare("SELECT id, name, role, department, wechat_id FROM users WHERE id = ?").get(userId) as DbUser | undefined
     if (!user) return res.status(404).json({ error: "User not found" })
     recordSession(user.id, "wechat", req)
-    return res.json(user)
+    return res.json({ user: { id: user.id, name: user.name, role: user.role, department: user.department, wechat_id: user.wechat_id } })
   }
 
   res.status(400).json({ error: "Invalid login parameters" })

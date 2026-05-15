@@ -30,7 +30,7 @@ router.post("/dns", async (req, res) => {
     const { domain, type } = req.body as { domain: string; type?: string }
     if (!domain) return res.status(400).json({ error: "domain is required" })
 
-    const rrtype = (type || "A") as dns.RecordType
+    const rrtype: string = type || "A"
     const records = await new Promise<string[] | object[]>((resolve, reject) => {
       dns.resolve(domain, rrtype, (err, addresses) => {
         if (err) reject(err)

@@ -1,33 +1,58 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, User, MessageCircle, KeyRound, UserCircle } from "lucide-react"
+import { Loader2, MessageCircle, KeyRound, UserCircle, CheckCircle2, Copy, Check, ScanLine } from "lucide-react"
 import type { LoginParams } from "@/hooks/useAuth"
-import type { User as UserType } from "@/types"
 
-type LoginTab = "wechat" | "password" | "guest"
+type LoginTab = "guest" | "password" | "wechat"
 
-interface LoginPageProps {
-  users: UserType[]
-  onLogin: (params: LoginParams) => void
-  isLoading: boolean
-  error?: string
+interface NewAccountInfo {
+  userId: string
+  password: string
 }
 
-export function LoginPage({ users, onLogin, isLoading, error }: LoginPageProps) {
-  const [tab, setTab] = useState<LoginTab>("wechat")
+interface LoginPageProps {
+  onLogin: (params: LoginParams) => Promise<{ success: boolean; isNewAccount?: boolean; defaultPassword?: string }>
+  isLoading: boolean
+  error?: string
+  newAccountInfo?: NewAccountInfo | null
+  onClearNewAccountInfo?: () => void
+}
+
+export function LoginPage({ onLogin, isLoading, error, newAccountInfo, onClearNewAccountInfo }: LoginPageProps) {
+  const [tab, setTab] = useState<LoginTab>("guest")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [wechatId, setWechatId] = useState("")
+  const [copiedId, setCopiedId] = useState(false)
+  const [copiedPwd, setCopiedPwd] = useState(false)
 
   const handlePasswordLogin = (e: React.FormEvent) => {
     e.preventDefault()
     onLogin({ type: "password", username, password })
   }
 
+  const handleWechatLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!wechatId.trim()) return
+    onLogin({ type: "wechat", wechatId: wechatId.trim() })
+  }
+
+  const copyToClipboard = async (text: string, type: "id" | "pwd") => {
+    await navigator.clipboard.writeText(text)
+    if (type === "id") {
+      setCopiedId(true)
+      setTimeout(() => setCopiedId(false), 1500)
+    } else {
+      setCopiedPwd(true)
+      setTimeout(() => setCopiedPwd(false), 1500)
+    }
+  }
+
   const tabs: { id: LoginTab; label: string; icon: React.ReactNode }[] = [
-    { id: "wechat", label: "企微登录", icon: <MessageCircle className="h-4 w-4" /> },
-    { id: "password", label: "账号密码", icon: <KeyRound className="h-4 w-4" /> },
     { id: "guest", label: "游客访问", icon: <UserCircle className="h-4 w-4" /> },
+    { id: "password", label: "账号密码", icon: <KeyRound className="h-4 w-4" /> },
+    { id: "wechat", label: "企微登录", icon: <MessageCircle className="h-4 w-4" /> },
   ]
 
   return (
@@ -66,6 +91,47 @@ export function LoginPage({ users, onLogin, isLoading, error }: LoginPageProps) 
             <p className="mt-2 text-sm text-muted-foreground">开发者工具门户</p>
           </div>
 
+          {/* New Account Notification */}
+          {newAccountInfo && (
+            <div className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
+                    已为您自动创建帐号
+                  </p>
+                  <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                    首次企微登录，系统已自动创建普通用户帐号并与您的企微绑定。您后续可选择企微扫码或账号密码登录。
+                  </p>
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center gap-2 rounded-md bg-white/60 px-2 py-1 dark:bg-black/20">
+                      <span className="text-xs text-muted-foreground">帐号:</span>
+                      <code className="flex-1 text-xs font-mono">{newAccountInfo.userId}</code>
+                      <button onClick={() => copyToClipboard(newAccountInfo.userId, "id")} className="text-muted-foreground hover:text-foreground">
+                        {copiedId ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                      </button>
+                    </div>
+                    <div className="flex items-center gap-2 rounded-md bg-white/60 px-2 py-1 dark:bg-black/20">
+                      <span className="text-xs text-muted-foreground">密码:</span>
+                      <code className="flex-1 text-xs font-mono">{newAccountInfo.password}</code>
+                      <button onClick={() => copyToClipboard(newAccountInfo.password, "pwd")} className="text-muted-foreground hover:text-foreground">
+                        {copiedPwd ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
+                      </button>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-2 w-full border-emerald-300 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-700 dark:text-emerald-300 dark:hover:bg-emerald-900"
+                    onClick={onClearNewAccountInfo}
+                  >
+                    我已记下，进入系统
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Tabs */}
           <div className="mb-4 flex rounded-lg border bg-muted p-1">
             {tabs.map((t) => (
@@ -92,74 +158,6 @@ export function LoginPage({ users, onLogin, isLoading, error }: LoginPageProps) 
               </div>
             )}
 
-            {tab === "wechat" && (
-              <div className="text-center">
-                <p className="mb-3 text-sm font-medium">企业微信扫码登录</p>
-                <div className="mx-auto mb-3 flex h-44 w-44 items-center justify-center rounded-lg border-2 border-dashed border-primary/20 bg-surface-sunken">
-                  {isLoading ? (
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  ) : (
-                    <div className="text-center">
-                      <QrCodeSvg />
-                      <p className="mt-1 text-xs text-muted-foreground">打开企业微信扫一扫</p>
-                    </div>
-                  )}
-                </div>
-                <p className="mb-3 text-xs text-muted-foreground">选择用户快速登录（演示）</p>
-                <div className="space-y-2">
-                  {users.length === 0 ? (
-                    <p className="text-xs text-muted-foreground">加载中...</p>
-                  ) : (
-                    users.map((u) => (
-                      <Button
-                        key={u.id}
-                        variant="outline"
-                        size="sm"
-                        className="w-full justify-start gap-2"
-                        onClick={() => onLogin({ type: "wechat", userId: u.id })}
-                        disabled={isLoading}
-                      >
-                        <User className="h-4 w-4" />
-                        <span>{u.name}</span>
-                        <span className="ml-auto text-xs text-muted-foreground">{u.department}</span>
-                        {u.role === "admin" && (
-                          <span className="rounded bg-primary/10 px-1 text-[10px] text-primary">管理员</span>
-                        )}
-                      </Button>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-            {tab === "password" && (
-              <form onSubmit={handlePasswordLogin} className="space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium">用户名</label>
-                  <Input
-                    placeholder="请输入用户名"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    disabled={isLoading}
-                  />
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium">密码</label>
-                  <Input
-                    type="password"
-                    placeholder="请输入密码"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={isLoading}
-                  />
-                  <p className="mt-1 text-[10px] text-muted-foreground">演示密码为用户ID（如 user-001）</p>
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading || !username || !password}>
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "登录"}
-                </Button>
-              </form>
-            )}
-
             {tab === "guest" && (
               <div className="text-center py-4">
                 <UserCircle className="mx-auto mb-3 h-10 w-10 text-muted-foreground" />
@@ -175,6 +173,69 @@ export function LoginPage({ users, onLogin, isLoading, error }: LoginPageProps) 
                 </Button>
               </div>
             )}
+
+            {tab === "password" && (
+              <form onSubmit={handlePasswordLogin} className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium">用户名</label>
+                  <Input
+                    placeholder="请输入用户名或用户ID"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium">密码</label>
+                  <Input
+                    type="password"
+                    placeholder="请输入密码"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading || !username || !password}>
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "登录"}
+                </Button>
+              </form>
+            )}
+
+            {tab === "wechat" && (
+              <form onSubmit={handleWechatLogin} className="space-y-4">
+                <div className="text-center">
+                  <div className="mx-auto mb-2 flex h-28 w-28 items-center justify-center rounded-xl border-2 border-dashed border-primary/20 bg-surface-sunken cursor-pointer hover:border-primary/40 transition-colors" onClick={() => document.getElementById('wechat-id-input')?.focus()}>
+                    {isLoading ? (
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    ) : (
+                      <div className="text-center">
+                        <ScanLine className="mx-auto h-8 w-8 text-primary/50" />
+                        <p className="mt-1 text-[10px] text-muted-foreground">点击下方输入企微ID</p>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">打开企业微信，扫描二维码或输入企微ID登录</p>
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs font-medium">企微ID</label>
+                  <div className="flex gap-2">
+                    <Input
+                      id="wechat-id-input"
+                      placeholder="输入企微ID，如 wx-zhangsan"
+                      value={wechatId}
+                      onChange={(e) => setWechatId(e.target.value)}
+                      disabled={isLoading}
+                      className="flex-1"
+                    />
+                    <Button type="submit" size="sm" disabled={isLoading || !wechatId.trim()}>
+                      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "登录"}
+                    </Button>
+                  </div>
+                  <p className="mt-1.5 text-[10px] text-muted-foreground">首次登录将自动创建帐号并绑定企微</p>
+                </div>
+              </form>
+            )}
           </div>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
@@ -184,33 +245,5 @@ export function LoginPage({ users, onLogin, isLoading, error }: LoginPageProps) 
         </div>
       </div>
     </div>
-  )
-}
-
-function QrCodeSvg() {
-  return (
-    <svg width="100" height="100" viewBox="0 0 120 120" className="mx-auto" aria-hidden="true">
-      <rect x="8" y="8" width="32" height="32" rx="4" fill="currentColor" className="text-foreground" />
-      <rect x="12" y="12" width="24" height="24" rx="2" fill="currentColor" className="text-card" />
-      <rect x="16" y="16" width="16" height="16" rx="2" fill="currentColor" className="text-foreground" />
-      <rect x="80" y="8" width="32" height="32" rx="4" fill="currentColor" className="text-foreground" />
-      <rect x="84" y="12" width="24" height="24" rx="2" fill="currentColor" className="text-card" />
-      <rect x="88" y="16" width="16" height="16" rx="2" fill="currentColor" className="text-foreground" />
-      <rect x="8" y="80" width="32" height="32" rx="4" fill="currentColor" className="text-foreground" />
-      <rect x="12" y="84" width="24" height="24" rx="2" fill="currentColor" className="text-card" />
-      <rect x="16" y="88" width="16" height="16" rx="2" fill="currentColor" className="text-foreground" />
-      {[
-        [48, 8], [56, 8], [64, 16], [48, 24], [56, 16], [72, 8],
-        [48, 48], [56, 48], [64, 48], [48, 56], [64, 56], [56, 64],
-        [80, 48], [88, 56], [96, 48], [80, 64], [104, 56],
-        [48, 80], [56, 88], [64, 80], [48, 96], [56, 104],
-        [80, 80], [88, 88], [96, 96], [104, 80], [80, 104],
-        [96, 104], [104, 96], [88, 104], [104, 104],
-        [8, 48], [16, 56], [24, 48], [32, 56], [8, 64],
-        [24, 64], [32, 48],
-      ].map(([x, y], i) => (
-        <rect key={i} x={x} y={y} width="6" height="6" rx="1" fill="currentColor" className="text-foreground" />
-      ))}
-    </svg>
   )
 }

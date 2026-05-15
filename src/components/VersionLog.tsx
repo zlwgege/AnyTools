@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom"
 import { Tag } from "lucide-react"
 
-export const CURRENT_VERSION = "1.0.1"
+export const CURRENT_VERSION = "1.0.2"
 
 export function VersionLogButton() {
   return (

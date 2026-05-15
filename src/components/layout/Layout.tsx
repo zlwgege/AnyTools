@@ -43,6 +43,7 @@ export function Layout({
         onLogout={onLogout}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        isAdmin={isAdmin}
       />
       <div className="flex">
         <Sidebar
@@ -60,6 +61,9 @@ export function Layout({
           </div>
         </main>
       </div>
+      <footer className="border-t py-3 text-center text-xs text-muted-foreground">
+        ToolBox · 开发者工具门户 · 大帅哥出品，必属精品
+      </footer>
     </div>
   )
 }

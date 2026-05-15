@@ -1,10 +1,11 @@
-import { Search, Sun, Moon, Menu, LogOut, User as UserIcon } from "lucide-react"
+import { Search, Sun, Moon, Menu, LogOut, User as UserIcon, Shield } from "lucide-react"
 import { VersionLogButton } from "@/components/VersionLog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useMemo } from "react"
 import { Link } from "react-router-dom"
+import { getMixedJokes } from "@/data/jokes"
 
 interface HeaderProps {
   theme: "light" | "dark"
@@ -14,6 +15,7 @@ interface HeaderProps {
   onLogout: () => void
   searchQuery: string
   onSearchChange: (query: string) => void
+  isAdmin?: boolean
 }
 
 export function Header({
@@ -24,9 +26,12 @@ export function Header({
   onLogout,
   searchQuery,
   onSearchChange,
+  isAdmin,
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const jokes = useMemo(() => getMixedJokes(3), [])
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -39,7 +44,16 @@ export function Header({
   }, [])
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card/80 px-4 glass lg:px-6">
+    <>
+      {/* Marquee */}
+      <div className="z-40 overflow-hidden whitespace-nowrap border-b bg-gradient-to-r from-amber-50 via-rose-50 to-sky-50 py-1 text-xs text-muted-foreground">
+        <div className="inline-block animate-marquee">
+          <span className="mx-8">🎉 开心一笑：{jokes[0]}</span>
+          <span className="mx-8">🎉 开心一笑：{jokes[1]}</span>
+          <span className="mx-8">🎉 开心一笑：{jokes[2]}</span>
+        </div>
+      </div>
+      <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card/80 px-4 glass lg:px-6">
       <Button
         variant="ghost"
         size="icon"
@@ -110,6 +124,16 @@ export function Header({
                 <p className="text-sm font-medium">{userName}</p>
                 <p className="text-xs text-muted-foreground">技术部</p>
               </div>
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setMenuOpen(false)}
+                  className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-secondary transition-fast"
+                >
+                  <Shield className="h-4 w-4" />
+                  管理后台
+                </Link>
+              )}
               <button
                 onClick={() => { setMenuOpen(false) }}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-secondary transition-fast"
@@ -129,5 +153,6 @@ export function Header({
         </div>
       </div>
     </header>
+    </>
   )
 }

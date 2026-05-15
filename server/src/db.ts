@@ -16,8 +16,12 @@ db.exec(`
     name TEXT NOT NULL,
     role TEXT NOT NULL CHECK(role IN ('user', 'admin')),
     department TEXT,
+    wechat_id TEXT UNIQUE,
+    password TEXT,
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
   );
+
+  CREATE INDEX IF NOT EXISTS idx_users_wechat ON users(wechat_id);
 
   CREATE TABLE IF NOT EXISTS usage_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,9 +77,9 @@ db.exec(`
 // Seed users if empty
 const userCount = db.prepare("SELECT COUNT(*) as c FROM users").get() as { c: number }
 if (userCount.c === 0) {
-  const insertUser = db.prepare("INSERT INTO users (id, name, role, department) VALUES (?, ?, ?, ?)")
-  insertUser.run("user-001", "张三", "user", "技术部")
-  insertUser.run("user-002", "李四", "admin", "基础架构部")
+  const insertUser = db.prepare("INSERT INTO users (id, name, role, department, wechat_id, password) VALUES (?, ?, ?, ?, ?, ?)")
+  insertUser.run("user-001", "张三", "user", "技术部", "wx-zhangsan", "user-001")
+  insertUser.run("user-002", "李四", "admin", "基础架构部", "wx-lisi", "user-002")
 
   // Seed sample logs
   const insertLog = db.prepare(

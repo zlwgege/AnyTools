@@ -32,4 +32,5 @@ export interface User {
   avatar?: string
   department?: string
   role?: "admin" | "user" | "guest"
+  wechat_id?: string | null
 }

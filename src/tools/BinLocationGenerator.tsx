@@ -28,6 +28,7 @@ interface BinItem {
   barWidth: number
   barHeight: number
   fontSize: number
+  paperSize: string
 }
 
 interface HistoryRecord {
@@ -41,16 +42,17 @@ const DEFAULT_ITEM: BinItem = {
   code: "",
   direction: "down",
   barWidth: 100,
-  barHeight: 100,
-  fontSize: 16,
+  barHeight: 30,
+  fontSize: 30,
+  paperSize: "a5",
 }
 
-const TEMPLATE_CSV = `库位码,方向,条码宽度(mm),条码高度(mm),文字大小(pt)
-HC-01-B-002,down,100,100,16
-HC-01-C-002,down,100,100,16
-HC-01-D-002,down,100,100,16
-HC-02-A-001,down,100,100,16
-HC-02-B-001,down,100,100,16`
+const TEMPLATE_CSV = `库位码,方向,条码宽度(mm),条码高度(mm),文字大小(pt),纸张尺寸
+HC-01-B-002,down,100,30,30,a5
+HC-01-C-002,down,100,30,30,a5
+HC-01-D-002,down,100,30,30,a5
+HC-02-A-001,down,100,30,30,a5
+HC-02-B-001,down,100,30,30,a5`
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
@@ -68,7 +70,7 @@ function createArrowDataURL(direction: string, size: number = 40): string {
   const ctx = canvas.getContext("2d")!
   ctx.fillStyle = "#000000"
   ctx.strokeStyle = "#000000"
-  ctx.lineWidth = Math.max(2, size / 15)
+  ctx.lineWidth = Math.max(4, size / 7.5)
   ctx.lineCap = "round"
   ctx.lineJoin = "round"
 
@@ -128,12 +130,23 @@ async function fetchImageDataURL(url: string): Promise<string> {
   })
 }
 
+const PAPER_SIZES: Record<string, { w: number; h: number }> = {
+  a3: { w: 297, h: 420 },
+  a4: { w: 210, h: 297 },
+  a5: { w: 148, h: 210 },
+  a6: { w: 105, h: 148 },
+  letter: { w: 216, h: 279 },
+}
+
 async function generateBinLabelsPDF(items: BinItem[], _filename: string): Promise<Blob> {
   const { jsPDF } = await import("jspdf")
-  const doc = new jsPDF({ unit: "mm", format: "a4" })
 
-  const pageW = 210
-  const pageH = 297
+  const firstPaper = items[0]?.paperSize || "a4"
+  const doc = new jsPDF({ unit: "mm", format: firstPaper as any })
+
+  const pageSize = PAPER_SIZES[firstPaper] || PAPER_SIZES.a4
+  const pageW = pageSize.w
+  const pageH = pageSize.h
   const margin = 20
 
   for (let i = 0; i < items.length; i++) {
@@ -169,7 +182,7 @@ async function generateBinLabelsPDF(items: BinItem[], _filename: string): Promis
     doc.setFontSize(item.fontSize)
     doc.setFont("helvetica", "bold")
     const textW = doc.getTextWidth(item.code)
-    doc.text(item.code, (pageW - textW) / 2, barY + barH + item.fontSize + 4)
+    doc.text(item.code, (pageW - textW) / 2, barY + barH + 10)
   }
 
   return doc.output("blob")
@@ -271,6 +284,7 @@ export default function BinLocationGenerator({ tool, user }: { tool: Tool; user:
             barWidth: Number(r[2]) || 70,
             barHeight: Number(r[3]) || 25,
             fontSize: Number(r[4]) || 16,
+            paperSize: String(r[5] || "a4").toLowerCase(),
           }))
         if (parsed.length > 0) {
           setItems(parsed)
@@ -423,6 +437,7 @@ export default function BinLocationGenerator({ tool, user }: { tool: Tool; user:
               <th className="px-3 py-2 text-left font-medium">条码宽(mm)</th>
               <th className="px-3 py-2 text-left font-medium">条码高(mm)</th>
               <th className="px-3 py-2 text-left font-medium">文字大小(pt)</th>
+              <th className="px-3 py-2 text-left font-medium">纸张尺寸</th>
               <th className="px-3 py-2 text-center font-medium">操作</th>
             </tr>
           </thead>
@@ -472,6 +487,19 @@ export default function BinLocationGenerator({ tool, user }: { tool: Tool; user:
                     onChange={(e) => updateItem(idx, "fontSize", Number(e.target.value))}
                     className="h-8 w-20"
                   />
+                </td>
+                <td className="px-3 py-2">
+                  <select
+                    value={item.paperSize}
+                    onChange={(e) => updateItem(idx, "paperSize", e.target.value)}
+                    className="h-8 rounded-md border bg-background px-2 text-sm"
+                  >
+                    <option value="a3">A3</option>
+                    <option value="a4">A4</option>
+                    <option value="a5">A5</option>
+                    <option value="a6">A6</option>
+                    <option value="letter">Letter</option>
+                  </select>
                 </td>
                 <td className="px-3 py-2 text-center">
                   <Button variant="ghost" size="sm" onClick={() => removeItem(idx)}>
