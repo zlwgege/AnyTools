@@ -29,6 +29,7 @@ interface BinItem {
   barHeight: number
   fontSize: number
   paperSize: string
+  paperOrientation: string
 }
 
 interface HistoryRecord {
@@ -45,14 +46,15 @@ const DEFAULT_ITEM: BinItem = {
   barHeight: 30,
   fontSize: 30,
   paperSize: "a5",
+  paperOrientation: "portrait",
 }
 
-const TEMPLATE_CSV = `库位码,方向,条码宽度(mm),条码高度(mm),文字大小(pt),纸张尺寸
-HC-01-B-002,down,100,30,30,a5
-HC-01-C-002,down,100,30,30,a5
-HC-01-D-002,down,100,30,30,a5
-HC-02-A-001,down,100,30,30,a5
-HC-02-B-001,down,100,30,30,a5`
+const TEMPLATE_CSV = `库位码,方向,条码宽度(mm),条码高度(mm),文字大小(pt),纸张尺寸,纸张方向
+HC-01-B-002,down,100,30,30,a5,portrait
+HC-01-C-002,down,100,30,30,a5,portrait
+HC-01-D-002,down,100,30,30,a5,portrait
+HC-02-A-001,down,100,30,30,a5,portrait
+HC-02-B-001,down,100,30,30,a5,portrait`
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
@@ -142,16 +144,23 @@ async function generateBinLabelsPDF(items: BinItem[], _filename: string): Promis
   const { jsPDF } = await import("jspdf")
 
   const firstPaper = items[0]?.paperSize || "a4"
-  const doc = new jsPDF({ unit: "mm", format: firstPaper as any })
+  const firstOrientation = items[0]?.paperOrientation || "portrait"
+  const isFirstLandscape = firstOrientation === "landscape"
+  const doc = new jsPDF({ unit: "mm", format: firstPaper as any, orientation: isFirstLandscape ? "landscape" : "portrait" })
 
-  const pageSize = PAPER_SIZES[firstPaper] || PAPER_SIZES.a4
-  const pageW = pageSize.w
-  const pageH = pageSize.h
   const margin = 20
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i]
-    if (i > 0) doc.addPage()
+    const itemOrientation = item.paperOrientation || "portrait"
+    const itemIsLandscape = itemOrientation === "landscape"
+    if (i > 0) {
+      doc.addPage((item.paperSize || firstPaper) as any, itemIsLandscape ? "landscape" : "portrait")
+    }
+
+    const rawItemPageSize = PAPER_SIZES[item.paperSize] || PAPER_SIZES.a4
+    const itemPageW = itemIsLandscape ? rawItemPageSize.h : rawItemPageSize.w
+    const itemPageH = itemIsLandscape ? rawItemPageSize.w : rawItemPageSize.h
 
     // Barcode image
     const bcUrl = `https://bwipjs-api.metafloor.com/?bcid=code128&text=${encodeURIComponent(item.code)}&scale=3&height=10&includetext=false`
@@ -161,15 +170,15 @@ async function generateBinLabelsPDF(items: BinItem[], _filename: string): Promis
     } catch {
       // fallback: draw placeholder text
       doc.setFontSize(10)
-      doc.text(`[条码生成失败: ${item.code}]`, pageW / 2, 100, { align: "center" })
+      doc.text(`[条码生成失败: ${item.code}]`, itemPageW / 2, 100, { align: "center" })
       continue
     }
 
     // Layout: barcode centered horizontally, arrow on the right
-    const barW = Math.min(item.barWidth, pageW - margin * 2 - 30)
+    const barW = Math.min(item.barWidth, itemPageW - margin * 2 - 30)
     const barH = item.barHeight
-    const barX = (pageW - barW) / 2 - 12
-    const barY = (pageH - barH - item.fontSize - 10) / 2 - 10
+    const barX = (itemPageW - barW) / 2 - 12
+    const barY = (itemPageH - barH - item.fontSize - 10) / 2 - 10
 
     doc.addImage(bcData, "PNG", barX, barY, barW, barH)
 
@@ -182,7 +191,7 @@ async function generateBinLabelsPDF(items: BinItem[], _filename: string): Promis
     doc.setFontSize(item.fontSize)
     doc.setFont("helvetica", "bold")
     const textW = doc.getTextWidth(item.code)
-    doc.text(item.code, (pageW - textW) / 2, barY + barH + 10)
+    doc.text(item.code, (itemPageW - textW) / 2, barY + barH + 10)
   }
 
   return doc.output("blob")
@@ -285,6 +294,7 @@ export default function BinLocationGenerator({ tool, user }: { tool: Tool; user:
             barHeight: Number(r[3]) || 25,
             fontSize: Number(r[4]) || 16,
             paperSize: String(r[5] || "a4").toLowerCase(),
+            paperOrientation: String(r[6] || "portrait").toLowerCase(),
           }))
         if (parsed.length > 0) {
           setItems(parsed)
@@ -438,6 +448,7 @@ export default function BinLocationGenerator({ tool, user }: { tool: Tool; user:
               <th className="px-3 py-2 text-left font-medium">条码高(mm)</th>
               <th className="px-3 py-2 text-left font-medium">文字大小(pt)</th>
               <th className="px-3 py-2 text-left font-medium">纸张尺寸</th>
+              <th className="px-3 py-2 text-left font-medium">纸张方向</th>
               <th className="px-3 py-2 text-center font-medium">操作</th>
             </tr>
           </thead>
@@ -499,6 +510,16 @@ export default function BinLocationGenerator({ tool, user }: { tool: Tool; user:
                     <option value="a5">A5</option>
                     <option value="a6">A6</option>
                     <option value="letter">Letter</option>
+                  </select>
+                </td>
+                <td className="px-3 py-2">
+                  <select
+                    value={item.paperOrientation}
+                    onChange={(e) => updateItem(idx, "paperOrientation", e.target.value)}
+                    className="h-8 rounded-md border bg-background px-2 text-sm"
+                  >
+                    <option value="portrait">竖向</option>
+                    <option value="landscape">横向</option>
                   </select>
                 </td>
                 <td className="px-3 py-2 text-center">
