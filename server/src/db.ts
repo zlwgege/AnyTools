@@ -54,6 +54,20 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_bin_labels_user ON bin_labels(user_id);
   CREATE INDEX IF NOT EXISTS idx_bin_labels_time ON bin_labels(created_at);
+
+  CREATE TABLE IF NOT EXISTS login_sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL,
+    login_type TEXT NOT NULL CHECK(login_type IN ('wechat', 'password', 'guest')),
+    ip TEXT,
+    user_agent TEXT,
+    browser TEXT,
+    os TEXT,
+    created_at TEXT DEFAULT (datetime('now', 'localtime'))
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_sessions_user ON login_sessions(user_id);
+  CREATE INDEX IF NOT EXISTS idx_sessions_time ON login_sessions(created_at);
 `);
 
 // Seed users if empty

@@ -30,3 +30,14 @@ export interface StatsQuery {
   userId?: string
   period: "day" | "week" | "month"
 }
+
+export interface DbLoginSession {
+  id: number
+  user_id: string
+  login_type: "wechat" | "password" | "guest"
+  ip: string | null
+  user_agent: string | null
+  browser: string | null
+  os: string | null
+  created_at: string
+}

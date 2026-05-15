@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils"
 import { categories } from "@/data/tools"
-import { Star, Clock, LayoutGrid, X, Home } from "lucide-react"
+import { Star, Clock, LayoutGrid, X, Home, Shield } from "lucide-react"
 import type { ToolCategory } from "@/types"
 import { Link, useLocation } from "react-router-dom"
 
@@ -11,6 +11,7 @@ interface SidebarProps {
   onCategoryChange: (category: ToolCategory | "all" | "favorites" | "recent") => void
   favoriteCount: number
   recentCount: number
+  isAdmin?: boolean
 }
 
 export function Sidebar({
@@ -20,6 +21,7 @@ export function Sidebar({
   onCategoryChange,
   favoriteCount,
   recentCount,
+  isAdmin,
 }: SidebarProps) {
   const location = useLocation()
   const handleClick = (cat: ToolCategory | "all" | "favorites" | "recent") => {
@@ -93,6 +95,21 @@ export function Sidebar({
               onClick={() => handleClick("recent")}
               badge={recentCount > 0 ? recentCount : undefined}
             />
+            {isAdmin && (
+              <Link
+                to="/admin"
+                onClick={onClose}
+                className={cn(
+                  "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-smooth",
+                  location.pathname === "/admin"
+                    ? "bg-primary/10 text-primary shadow-sm"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                )}
+              >
+                <Shield className="h-4 w-4" />
+                <span className="flex-1 text-left">管理后台</span>
+              </Link>
+            )}
           </div>
 
           {/* Categories */}

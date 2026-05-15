@@ -14,6 +14,7 @@ interface LayoutProps {
   onLogout: () => void
   favoriteCount: number
   recentCount: number
+  isAdmin?: boolean
 }
 
 export function Layout({
@@ -24,6 +25,7 @@ export function Layout({
   onLogout,
   favoriteCount,
   recentCount,
+  isAdmin,
 }: LayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [activeCategory, setActiveCategory] = useState<
@@ -50,6 +52,7 @@ export function Layout({
           onCategoryChange={setActiveCategory}
           favoriteCount={favoriteCount}
           recentCount={recentCount}
+          isAdmin={isAdmin}
         />
         <main className="flex-1 overflow-auto">
           <div className="mx-auto max-w-7xl p-4 lg:p-8">

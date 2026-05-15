@@ -10,6 +10,7 @@ interface DashboardPageProps {
   recentIds: string[]
   onToggleFavorite: (id: string) => void
   onOpenTool: (id: string) => void
+  isAdmin?: boolean
 }
 
 export function DashboardPage({
@@ -21,6 +22,7 @@ export function DashboardPage({
   recentIds,
   onToggleFavorite,
   onOpenTool,
+  isAdmin,
 }: DashboardPageProps) {
   return (
     <Layout
@@ -30,6 +32,7 @@ export function DashboardPage({
       onLogout={onLogout}
       favoriteCount={favorites.length}
       recentCount={recentIds.length}
+      isAdmin={isAdmin}
     >
       {({ activeCategory, searchQuery }) => (
         <ToolGrid

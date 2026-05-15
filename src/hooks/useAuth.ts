@@ -3,6 +3,13 @@ import type { User } from "@/types"
 
 const API_BASE = "/api"
 
+export interface LoginParams {
+  type: "wechat" | "password" | "guest"
+  userId?: string
+  username?: string
+  password?: string
+}
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(() => {
     const stored = localStorage.getItem("toolbox-user")
@@ -10,6 +17,7 @@ export function useAuth() {
   })
   const [users, setUsers] = useState<User[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [loginError, setLoginError] = useState<string>("")
 
   useEffect(() => {
     fetch(`${API_BASE}/auth/users`)
@@ -18,20 +26,26 @@ export function useAuth() {
       .catch(console.error)
   }, [])
 
-  const login = useCallback(async (userId: string) => {
+  const login = useCallback(async (params: LoginParams) => {
     setIsLoading(true)
+    setLoginError("")
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify(params),
       })
-      if (!res.ok) throw new Error("Login failed")
       const data = await res.json()
+      if (!res.ok) {
+        setLoginError(data.error || "登录失败")
+        return false
+      }
       setUser(data)
       localStorage.setItem("toolbox-user", JSON.stringify(data))
+      return true
     } catch (e) {
-      console.error(e)
+      setLoginError("网络错误，请稍后重试")
+      return false
     } finally {
       setIsLoading(false)
     }
@@ -43,5 +57,7 @@ export function useAuth() {
     localStorage.removeItem("toolbox-recent")
   }, [])
 
-  return { user, users, isLoading, login, logout }
+  const isAdmin = user?.role === "admin"
+
+  return { user, users, isLoading, loginError, login, logout, isAdmin }
 }

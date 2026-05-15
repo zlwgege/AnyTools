@@ -31,4 +31,5 @@ export interface User {
   name: string
   avatar?: string
   department?: string
+  role?: "admin" | "user" | "guest"
 }
