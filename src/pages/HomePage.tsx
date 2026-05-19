@@ -11,11 +11,12 @@ interface HomePageProps {
   theme: "light" | "dark"
   onToggleTheme: () => void
   userName: string
+  userAvatar?: string
   onLogout: () => void
   isAdmin?: boolean
 }
 
-export function HomePage({ theme, onToggleTheme, userName, onLogout, isAdmin }: HomePageProps) {
+export function HomePage({ theme, onToggleTheme, userName, userAvatar, onLogout, isAdmin }: HomePageProps) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-pink-50/30">
       {/* Soft gradient orbs */}
@@ -44,6 +45,7 @@ export function HomePage({ theme, onToggleTheme, userName, onLogout, isAdmin }: 
         onToggleTheme={onToggleTheme}
         onToggleSidebar={() => {}}
         userName={userName}
+        userAvatar={userAvatar}
         onLogout={onLogout}
         searchQuery={""}
         onSearchChange={() => {}}

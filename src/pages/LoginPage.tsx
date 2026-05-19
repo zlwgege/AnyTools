@@ -1,10 +1,11 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Loader2, MessageCircle, KeyRound, UserCircle, CheckCircle2, Copy, Check, ScanLine } from "lucide-react"
-import type { LoginParams } from "@/hooks/useAuth"
+import { Loader2, MessageCircle, KeyRound, UserCircle, CheckCircle2, Copy, Check, ScanLine, UserPlus, RotateCcw } from "lucide-react"
+import type { LoginParams, RegisterParams } from "@/hooks/useAuth"
 
 type LoginTab = "guest" | "password" | "wechat"
+type AuthView = "login" | "register" | "reset-password"
 
 interface NewAccountInfo {
   userId: string
@@ -13,19 +14,34 @@ interface NewAccountInfo {
 
 interface LoginPageProps {
   onLogin: (params: LoginParams) => Promise<{ success: boolean; isNewAccount?: boolean; defaultPassword?: string }>
+  onRegister: (params: RegisterParams) => Promise<{ success: boolean }>
+  onResetPassword: (email: string, newPassword: string) => Promise<boolean>
   isLoading: boolean
   error?: string
   newAccountInfo?: NewAccountInfo | null
   onClearNewAccountInfo?: () => void
 }
 
-export function LoginPage({ onLogin, isLoading, error, newAccountInfo, onClearNewAccountInfo }: LoginPageProps) {
+export function LoginPage({ onLogin, onRegister, onResetPassword, isLoading, error, newAccountInfo, onClearNewAccountInfo }: LoginPageProps) {
   const [tab, setTab] = useState<LoginTab>("guest")
+  const [authView, setAuthView] = useState<AuthView>("login")
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [wechatId, setWechatId] = useState("")
   const [copiedId, setCopiedId] = useState(false)
   const [copiedPwd, setCopiedPwd] = useState(false)
+
+  // Register form
+  const [regUsername, setRegUsername] = useState("")
+  const [regPassword, setRegPassword] = useState("")
+  const [regConfirmPwd, setRegConfirmPwd] = useState("")
+  const [regEmail, setRegEmail] = useState("")
+
+  // Reset password form
+  const [resetEmail, setResetEmail] = useState("")
+  const [resetNewPwd, setResetNewPwd] = useState("")
+  const [resetConfirmPwd, setResetConfirmPwd] = useState("")
+  const [resetSuccess, setResetSuccess] = useState(false)
 
   const handlePasswordLogin = (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,6 +52,27 @@ export function LoginPage({ onLogin, isLoading, error, newAccountInfo, onClearNe
     e.preventDefault()
     if (!wechatId.trim()) return
     onLogin({ type: "wechat", wechatId: wechatId.trim() })
+  }
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (regPassword !== regConfirmPwd) {
+      alert("两次输入的密码不一致")
+      return
+    }
+    onRegister({ username: regUsername, password: regPassword, email: regEmail || undefined })
+  }
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (resetNewPwd !== resetConfirmPwd) {
+      alert("两次输入的密码不一致")
+      return
+    }
+    const ok = await onResetPassword(resetEmail, resetNewPwd)
+    if (ok) {
+      setResetSuccess(true)
+    }
   }
 
   const copyToClipboard = async (text: string, type: "id" | "pwd") => {
@@ -49,12 +86,139 @@ export function LoginPage({ onLogin, isLoading, error, newAccountInfo, onClearNe
     }
   }
 
+  const switchToLogin = () => {
+    setAuthView("login")
+    setResetSuccess(false)
+  }
+
   const tabs: { id: LoginTab; label: string; icon: React.ReactNode }[] = [
     { id: "guest", label: "游客访问", icon: <UserCircle className="h-4 w-4" /> },
     { id: "password", label: "账号密码", icon: <KeyRound className="h-4 w-4" /> },
     { id: "wechat", label: "企微登录", icon: <MessageCircle className="h-4 w-4" /> },
   ]
 
+  // Register view
+  if (authView === "register") {
+    return (
+      <div className="flex min-h-screen">
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+          <img src="/images/login-hero.png" alt="ToolBox" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+          <div className="absolute inset-0 bg-gradient-hero opacity-60" />
+          <div className="relative z-10 flex flex-col justify-end p-12">
+            <h2 className="text-3xl font-bold text-foreground">一站式开发者工具集合</h2>
+            <p className="mt-3 max-w-md text-base text-muted-foreground">
+              JSON 格式化、Base64 编解码、时间戳转换等 20+ 常用工具，助力日常开发效率提升
+            </p>
+          </div>
+        </div>
+        <div className="flex w-full items-center justify-center px-6 lg:w-1/2">
+          <div className="w-full max-w-sm animate-fade-in">
+            <div className="mb-8 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
+                <UserPlus className="h-7 w-7 text-primary-foreground" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">注册帐号</h1>
+              <p className="mt-2 text-sm text-muted-foreground">创建帐号以使用完整功能</p>
+            </div>
+            <div className="rounded-xl border bg-card p-5">
+              {error && (
+                <div className="mb-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</div>
+              )}
+              <form onSubmit={handleRegister} className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-xs font-medium">用户名</label>
+                  <Input placeholder="请输入用户名" value={regUsername} onChange={(e) => setRegUsername(e.target.value)} disabled={isLoading} />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium">密码</label>
+                  <Input type="password" placeholder="至少4位密码" value={regPassword} onChange={(e) => setRegPassword(e.target.value)} disabled={isLoading} />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium">确认密码</label>
+                  <Input type="password" placeholder="再次输入密码" value={regConfirmPwd} onChange={(e) => setRegConfirmPwd(e.target.value)} disabled={isLoading} />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium">邮箱 <span className="text-muted-foreground">（选填，用于重置密码）</span></label>
+                  <Input type="email" placeholder="your@email.com" value={regEmail} onChange={(e) => setRegEmail(e.target.value)} disabled={isLoading} />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading || !regUsername || !regPassword || !regConfirmPwd}>
+                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "注册"}
+                </Button>
+              </form>
+              <div className="mt-3 text-center">
+                <button onClick={switchToLogin} className="text-xs text-primary hover:underline">已有帐号？去登录</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Reset password view
+  if (authView === "reset-password") {
+    return (
+      <div className="flex min-h-screen">
+        <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+          <img src="/images/login-hero.png" alt="ToolBox" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+          <div className="absolute inset-0 bg-gradient-hero opacity-60" />
+          <div className="relative z-10 flex flex-col justify-end p-12">
+            <h2 className="text-3xl font-bold text-foreground">一站式开发者工具集合</h2>
+            <p className="mt-3 max-w-md text-base text-muted-foreground">JSON 格式化、Base64 编解码、时间戳转换等 20+ 常用工具</p>
+          </div>
+        </div>
+        <div className="flex w-full items-center justify-center px-6 lg:w-1/2">
+          <div className="w-full max-w-sm animate-fade-in">
+            <div className="mb-8 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
+                <RotateCcw className="h-7 w-7 text-primary-foreground" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">重置密码</h1>
+              <p className="mt-2 text-sm text-muted-foreground">通过绑定邮箱重置密码</p>
+            </div>
+            <div className="rounded-xl border bg-card p-5">
+              {resetSuccess ? (
+                <div className="text-center py-4">
+                  <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-emerald-500" />
+                  <p className="mb-1 text-sm font-medium">密码重置成功</p>
+                  <p className="mb-4 text-xs text-muted-foreground">请使用新密码登录</p>
+                  <Button variant="outline" className="w-full" onClick={switchToLogin}>返回登录</Button>
+                </div>
+              ) : (
+                <>
+                  {error && (
+                    <div className="mb-3 rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</div>
+                  )}
+                  <form onSubmit={handleResetPassword} className="space-y-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium">绑定邮箱</label>
+                      <Input type="email" placeholder="输入注册时绑定的邮箱" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} disabled={isLoading} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium">新密码</label>
+                      <Input type="password" placeholder="至少4位新密码" value={resetNewPwd} onChange={(e) => setResetNewPwd(e.target.value)} disabled={isLoading} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium">确认新密码</label>
+                      <Input type="password" placeholder="再次输入新密码" value={resetConfirmPwd} onChange={(e) => setResetConfirmPwd(e.target.value)} disabled={isLoading} />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading || !resetEmail || !resetNewPwd || !resetConfirmPwd}>
+                      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "重置密码"}
+                    </Button>
+                  </form>
+                  <div className="mt-3 text-center">
+                    <button onClick={switchToLogin} className="text-xs text-primary hover:underline">返回登录</button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Login view (default)
   return (
     <div className="flex min-h-screen">
       {/* Left: Hero visual */}
@@ -171,6 +335,17 @@ export function LoginPage({ onLogin, isLoading, error, newAccountInfo, onClearNe
                 >
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "直接进入"}
                 </Button>
+                <div className="mt-3 pt-3 border-t">
+                  <p className="text-xs text-muted-foreground mb-2">没有帐号？</p>
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => setAuthView("register")}
+                  >
+                    <UserPlus className="mr-2 h-4 w-4" />
+                    注册新帐号
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -198,6 +373,14 @@ export function LoginPage({ onLogin, isLoading, error, newAccountInfo, onClearNe
                 <Button type="submit" className="w-full" disabled={isLoading || !username || !password}>
                   {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "登录"}
                 </Button>
+                <div className="flex items-center justify-between text-xs">
+                  <button type="button" onClick={() => setAuthView("register")} className="text-primary hover:underline">
+                    没有帐号？注册
+                  </button>
+                  <button type="button" onClick={() => setAuthView("reset-password")} className="text-primary hover:underline">
+                    忘记密码？
+                  </button>
+                </div>
               </form>
             )}
 

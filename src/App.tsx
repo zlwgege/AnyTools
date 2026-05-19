@@ -8,14 +8,15 @@ import { HomePage } from "@/pages/HomePage"
 import ToolPage from "@/pages/ToolPage"
 import VersionLogPage from "@/pages/VersionLogPage"
 import AdminPage from "@/pages/AdminPage"
+import ProfilePage from "@/pages/ProfilePage"
 
 function App() {
   const { theme, toggleTheme } = useTheme()
-  const { user, isLoading, loginError, login, logout, isAdmin, newAccountInfo, clearNewAccountInfo } = useAuth()
+  const { user, isLoading, loginError, login, register, updateProfile, changePassword, resetPassword, logout, isAdmin, newAccountInfo, clearNewAccountInfo } = useAuth()
   const { favorites, recentIds, toggleFavorite, addRecent } = useFavorites(user?.id)
 
   if (!user || newAccountInfo) {
-    return <LoginPage onLogin={login} isLoading={isLoading} error={loginError} newAccountInfo={newAccountInfo} onClearNewAccountInfo={clearNewAccountInfo} />
+    return <LoginPage onLogin={login} onRegister={register} onResetPassword={resetPassword} isLoading={isLoading} error={loginError} newAccountInfo={newAccountInfo} onClearNewAccountInfo={clearNewAccountInfo} />
   }
 
   return (
@@ -27,6 +28,7 @@ function App() {
             theme={theme}
             onToggleTheme={toggleTheme}
             userName={user.name}
+            userAvatar={user.avatar}
             onLogout={logout}
             isAdmin={isAdmin}
           />
@@ -39,6 +41,7 @@ function App() {
             theme={theme}
             onToggleTheme={toggleTheme}
             userName={user.name}
+            userAvatar={user.avatar}
             onLogout={logout}
             favorites={favorites}
             recentIds={recentIds}
@@ -54,6 +57,7 @@ function App() {
       <Route path="/tools/:toolId" element={<ToolPage />} />
       <Route path="/version-log" element={<VersionLogPage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/profile" element={<ProfilePage user={user} onUpdateProfile={updateProfile} onChangePassword={changePassword} />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

@@ -5,6 +5,8 @@ export interface DbUser {
   department: string
   wechat_id: string | null
   password: string | null
+  email: string | null
+  avatar: string | null
   created_at: string
 }
 

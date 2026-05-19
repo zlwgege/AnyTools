@@ -11,6 +11,12 @@ export interface LoginParams {
   wechatId?: string
 }
 
+export interface RegisterParams {
+  username: string
+  password: string
+  email?: string
+}
+
 export interface LoginResult {
   success: boolean
   isNewAccount?: boolean
@@ -50,7 +56,6 @@ export function useAuth() {
         return { success: false }
       }
 
-      // Handle different response formats
       const userData = data.user || data
       const isNewAccount = data.isNewAccount || false
       const defaultPassword = data.defaultPassword || ""
@@ -71,6 +76,94 @@ export function useAuth() {
     }
   }, [])
 
+  const register = useCallback(async (params: RegisterParams): Promise<LoginResult> => {
+    setIsLoading(true)
+    setLoginError("")
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(params),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setLoginError(data.error || "注册失败")
+        return { success: false }
+      }
+      const userData = data.user
+      setUser(userData)
+      localStorage.setItem("toolbox-user", JSON.stringify(userData))
+      return { success: true }
+    } catch {
+      setLoginError("网络错误，请稍后重试")
+      return { success: false }
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  const updateProfile = useCallback(async (updates: { name?: string; email?: string; avatar?: string }): Promise<boolean> => {
+    if (!user) return false
+    try {
+      const res = await fetch(`${API_BASE}/auth/profile/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updates),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || "更新失败")
+        return false
+      }
+      const updated = data.user
+      setUser(updated)
+      localStorage.setItem("toolbox-user", JSON.stringify(updated))
+      return true
+    } catch {
+      alert("网络错误，请稍后重试")
+      return false
+    }
+  }, [user])
+
+  const changePassword = useCallback(async (oldPassword: string, newPassword: string): Promise<boolean> => {
+    if (!user) return false
+    try {
+      const res = await fetch(`${API_BASE}/auth/password/${user.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ oldPassword, newPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || "修改密码失败")
+        return false
+      }
+      return true
+    } catch {
+      alert("网络错误，请稍后重试")
+      return false
+    }
+  }, [user])
+
+  const resetPassword = useCallback(async (email: string, newPassword: string): Promise<boolean> => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, newPassword }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        alert(data.error || "重置密码失败")
+        return false
+      }
+      return true
+    } catch {
+      alert("网络错误，请稍后重试")
+      return false
+    }
+  }, [])
+
   const logout = useCallback(() => {
     setUser(null)
     localStorage.removeItem("toolbox-user")
@@ -84,5 +177,5 @@ export function useAuth() {
 
   const isAdmin = user?.role === "admin"
 
-  return { user, users, isLoading, loginError, login, logout, isAdmin, newAccountInfo, clearNewAccountInfo }
+  return { user, users, isLoading, loginError, login, register, updateProfile, changePassword, resetPassword, logout, isAdmin, newAccountInfo, clearNewAccountInfo }
 }

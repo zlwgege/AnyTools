@@ -5,6 +5,7 @@ interface DashboardPageProps {
   theme: "light" | "dark"
   onToggleTheme: () => void
   userName: string
+  userAvatar?: string
   onLogout: () => void
   favorites: string[]
   recentIds: string[]
@@ -17,6 +18,7 @@ export function DashboardPage({
   theme,
   onToggleTheme,
   userName,
+  userAvatar,
   onLogout,
   favorites,
   recentIds,
@@ -29,6 +31,7 @@ export function DashboardPage({
       theme={theme}
       onToggleTheme={onToggleTheme}
       userName={userName}
+      userAvatar={userAvatar}
       onLogout={onLogout}
       favoriteCount={favorites.length}
       recentCount={recentIds.length}

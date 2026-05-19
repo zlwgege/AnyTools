@@ -11,6 +11,7 @@ interface LayoutProps {
   theme: "light" | "dark"
   onToggleTheme: () => void
   userName: string
+  userAvatar?: string
   onLogout: () => void
   favoriteCount: number
   recentCount: number
@@ -22,6 +23,7 @@ export function Layout({
   theme,
   onToggleTheme,
   userName,
+  userAvatar,
   onLogout,
   favoriteCount,
   recentCount,
@@ -40,6 +42,7 @@ export function Layout({
         onToggleTheme={onToggleTheme}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         userName={userName}
+        userAvatar={userAvatar}
         onLogout={onLogout}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

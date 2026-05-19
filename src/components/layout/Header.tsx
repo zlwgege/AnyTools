@@ -1,10 +1,10 @@
-import { Search, Sun, Moon, Menu, LogOut, User as UserIcon, Shield } from "lucide-react"
+import { Search, Sun, Moon, Menu, LogOut, User as UserIcon, Shield, Settings } from "lucide-react"
 import { VersionLogButton } from "@/components/VersionLog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
 import { useState, useRef, useEffect, useMemo } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { getMixedJokes } from "@/data/jokes"
 
 interface HeaderProps {
@@ -12,6 +12,7 @@ interface HeaderProps {
   onToggleTheme: () => void
   onToggleSidebar: () => void
   userName?: string
+  userAvatar?: string
   onLogout: () => void
   searchQuery: string
   onSearchChange: (query: string) => void
@@ -23,6 +24,7 @@ export function Header({
   onToggleTheme,
   onToggleSidebar,
   userName,
+  userAvatar,
   onLogout,
   searchQuery,
   onSearchChange,
@@ -30,6 +32,7 @@ export function Header({
 }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
 
   const jokes = useMemo(() => getMixedJokes(3), [])
 
@@ -115,7 +118,13 @@ export function Header({
             onClick={() => setMenuOpen(!menuOpen)}
             className="transition-smooth rounded-full ring-2 ring-transparent hover:ring-primary/30"
           >
-            <Avatar fallback={userName || "U"} size="sm" />
+            {userAvatar ? (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full text-lg bg-primary/10">
+                {userAvatar}
+              </div>
+            ) : (
+              <Avatar fallback={userName || "U"} size="sm" />
+            )}
           </button>
 
           {menuOpen && (
@@ -135,10 +144,10 @@ export function Header({
                 </Link>
               )}
               <button
-                onClick={() => { setMenuOpen(false) }}
+                onClick={() => { setMenuOpen(false); navigate("/profile") }}
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-secondary transition-fast"
               >
-                <UserIcon className="h-4 w-4" />
+                <Settings className="h-4 w-4" />
                 个人设置
               </button>
               <button

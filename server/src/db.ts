@@ -18,6 +18,8 @@ db.exec(`
     department TEXT,
     wechat_id TEXT UNIQUE,
     password TEXT,
+    email TEXT,
+    avatar TEXT,
     created_at TEXT DEFAULT (datetime('now', 'localtime'))
   );
 
@@ -73,6 +75,14 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_sessions_user ON login_sessions(user_id);
   CREATE INDEX IF NOT EXISTS idx_sessions_time ON login_sessions(created_at);
 `);
+
+// Add email/avatar columns to existing tables (safe migration)
+try {
+  db.exec("ALTER TABLE users ADD COLUMN email TEXT")
+} catch {}
+try {
+  db.exec("ALTER TABLE users ADD COLUMN avatar TEXT")
+} catch {}
 
 // Seed users if empty
 const userCount = db.prepare("SELECT COUNT(*) as c FROM users").get() as { c: number }

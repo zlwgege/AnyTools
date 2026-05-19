@@ -33,4 +33,5 @@ export interface User {
   department?: string
   role?: "admin" | "user" | "guest"
   wechat_id?: string | null
+  email?: string | null
 }
