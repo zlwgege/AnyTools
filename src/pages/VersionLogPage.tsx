@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Tag, Calendar, ListChecks } from "lucide-react"
 
-export const CURRENT_VERSION = "1.0.2"
+export const CURRENT_VERSION = "1.0.3"
 
 interface VersionEntry {
   version: string
@@ -13,6 +13,15 @@ interface VersionEntry {
 }
 
 const VERSION_LOGS: VersionEntry[] = [
+  {
+    version: "1.0.3",
+    date: "2026-05-19",
+    content: [
+      "库位码生成器默认文字大小从 30pt 调整为 50pt",
+      "库位码文字与条码间距从 10mm 调整为 30mm",
+      "更新导入模板默认文字大小为 50pt",
+    ],
+  },
   {
     version: "1.0.2",
     date: "2026-05-15",

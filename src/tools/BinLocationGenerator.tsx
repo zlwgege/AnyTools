@@ -44,17 +44,17 @@ const DEFAULT_ITEM: BinItem = {
   direction: "down",
   barWidth: 100,
   barHeight: 30,
-  fontSize: 30,
+  fontSize: 50,
   paperSize: "a5",
   paperOrientation: "portrait",
 }
 
 const TEMPLATE_CSV = `库位码,方向,条码宽度(mm),条码高度(mm),文字大小(pt),纸张尺寸,纸张方向
-HC-01-B-002,down,100,30,30,a5,portrait
-HC-01-C-002,down,100,30,30,a5,portrait
-HC-01-D-002,down,100,30,30,a5,portrait
-HC-02-A-001,down,100,30,30,a5,portrait
-HC-02-B-001,down,100,30,30,a5,portrait`
+HC-01-B-002,down,100,30,50,a5,portrait
+HC-01-C-002,down,100,30,50,a5,portrait
+HC-01-D-002,down,100,30,50,a5,portrait
+HC-02-A-001,down,100,30,50,a5,portrait
+HC-02-B-001,down,100,30,50,a5,portrait`
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
@@ -191,7 +191,7 @@ async function generateBinLabelsPDF(items: BinItem[], _filename: string): Promis
     doc.setFontSize(item.fontSize)
     doc.setFont("helvetica", "bold")
     const textW = doc.getTextWidth(item.code)
-    doc.text(item.code, (itemPageW - textW) / 2, barY + barH + 10)
+    doc.text(item.code, (itemPageW - textW) / 2, barY + barH + 30)
   }
 
   return doc.output("blob")
