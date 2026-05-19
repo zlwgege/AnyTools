@@ -46,15 +46,15 @@ const DEFAULT_ITEM: BinItem = {
   barHeight: 30,
   fontSize: 50,
   paperSize: "a5",
-  paperOrientation: "portrait",
+  paperOrientation: "landscape",
 }
 
 const TEMPLATE_CSV = `库位码,方向,条码宽度(mm),条码高度(mm),文字大小(pt),纸张尺寸,纸张方向
-HC-01-B-002,down,100,30,50,a5,portrait
-HC-01-C-002,down,100,30,50,a5,portrait
-HC-01-D-002,down,100,30,50,a5,portrait
-HC-02-A-001,down,100,30,50,a5,portrait
-HC-02-B-001,down,100,30,50,a5,portrait`
+HC-01-B-002,down,100,30,50,a5,landscape
+HC-01-C-002,down,100,30,50,a5,landscape
+HC-01-D-002,down,100,30,50,a5,landscape
+HC-02-A-001,down,100,30,50,a5,landscape
+HC-02-B-001,down,100,30,50,a5,landscape`
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob)
