@@ -3,6 +3,7 @@ import { VersionLogButton } from "@/components/VersionLog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar } from "@/components/ui/avatar"
+import { AppLogo } from "@/components/AppLogo"
 import { useState, useRef, useEffect, useMemo } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { getMixedJokes } from "@/data/jokes"
@@ -68,11 +69,9 @@ export function Header({
       </Button>
 
       <Link to="/" className="flex items-center gap-2">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
-          <span className="text-sm font-bold text-primary-foreground">T</span>
-        </div>
+        <AppLogo size={28} />
         <span className="hidden text-lg font-bold tracking-tight sm:inline-block">
-          Tool<span className="text-gradient">Box</span>
+          海外仓<span className="text-gradient">工具箱</span>
         </span>
       </Link>
 

@@ -65,7 +65,7 @@ export function Layout({
         </main>
       </div>
       <footer className="border-t py-3 text-center text-xs text-muted-foreground">
-        ToolBox · 开发者工具门户 · 大帅哥出品，必属精品
+        海外仓工具箱 · 现场管理工具门户 · 大帅哥出品，必属精品
       </footer>
     </div>
   )

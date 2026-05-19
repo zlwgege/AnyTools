@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header"
 import { Sparkles, ArrowUpRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CloudLine, StarLine, SparkleLine, WaveLine, CircleDots, FlowerLine, DashedCircle, LeafLine } from "@/components/decorations"
+import { AppLogo } from "@/components/AppLogo"
 
 interface HomePageProps {
   theme: "light" | "dark"
@@ -58,13 +59,13 @@ export function HomePage({ theme, onToggleTheme, userName, userAvatar, onLogout,
         <div className="mb-10 text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/70 px-4 py-1.5 text-xs font-medium text-slate-500 backdrop-blur-sm shadow-sm">
             <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-            <span>一站式开发者工具集合</span>
+            <span>海外仓现场管理工具箱</span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-slate-700 sm:text-5xl">
-            ToolBox{" "}
+            海外仓{" "}
             <span className="relative">
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-violet-400 to-sky-400">
-                门户首页
+                工具箱
               </span>
               <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 200 12" fill="none">
                 <path d="M2 8 Q50 2 100 6 Q150 10 198 4" stroke="url(#underline)" strokeWidth="3" strokeLinecap="round" />
@@ -79,7 +80,7 @@ export function HomePage({ theme, onToggleTheme, userName, userAvatar, onLogout,
             </span>
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-sm text-slate-400 leading-relaxed">
-            20+ 实用工具，助力日常开发效率提升。点击任意工具即可在新窗口中打开。
+            库位码生成、条码生成、JSON格式化等实用工具，助力海外仓现场管理效率提升。
           </p>
         </div>
 
@@ -133,7 +134,7 @@ export function HomePage({ theme, onToggleTheme, userName, userAvatar, onLogout,
           <div className="h-px w-12 bg-slate-200" />
         </div>
         <p className="mt-3 text-center text-[10px] text-slate-300">
-          ToolBox · 开发者工具门户 · 大帅哥出品，必属精品
+          海外仓工具箱 · 现场管理工具门户 · 大帅哥出品，必属精品
         </p>
       </main>
     </div>

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Loader2, MessageCircle, KeyRound, UserCircle, CheckCircle2, Copy, Check, ScanLine, UserPlus, RotateCcw } from "lucide-react"
 import type { LoginParams, RegisterParams } from "@/hooks/useAuth"
+import { AppLogo } from "@/components/AppLogo"
 
 type LoginTab = "guest" | "password" | "wechat"
 type AuthView = "login" | "register" | "reset-password"
@@ -102,12 +103,12 @@ export function LoginPage({ onLogin, onRegister, onResetPassword, isLoading, err
     return (
       <div className="flex min-h-screen">
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-          <img src="/images/login-hero.png" alt="ToolBox" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+          <img src="/images/login-hero.png" alt="海外仓工具箱" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
           <div className="absolute inset-0 bg-gradient-hero opacity-60" />
           <div className="relative z-10 flex flex-col justify-end p-12">
-            <h2 className="text-3xl font-bold text-foreground">一站式开发者工具集合</h2>
+            <h2 className="text-3xl font-bold text-foreground">海外仓现场管理工具箱</h2>
             <p className="mt-3 max-w-md text-base text-muted-foreground">
-              JSON 格式化、Base64 编解码、时间戳转换等 20+ 常用工具，助力日常开发效率提升
+              库位码生成、条码生成、JSON格式化等实用工具，助力海外仓现场管理效率提升
             </p>
           </div>
         </div>
@@ -160,11 +161,11 @@ export function LoginPage({ onLogin, onRegister, onResetPassword, isLoading, err
     return (
       <div className="flex min-h-screen">
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-          <img src="/images/login-hero.png" alt="ToolBox" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+          <img src="/images/login-hero.png" alt="海外仓工具箱" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
           <div className="absolute inset-0 bg-gradient-hero opacity-60" />
           <div className="relative z-10 flex flex-col justify-end p-12">
-            <h2 className="text-3xl font-bold text-foreground">一站式开发者工具集合</h2>
-            <p className="mt-3 max-w-md text-base text-muted-foreground">JSON 格式化、Base64 编解码、时间戳转换等 20+ 常用工具</p>
+            <h2 className="text-3xl font-bold text-foreground">海外仓现场管理工具箱</h2>
+            <p className="mt-3 max-w-md text-base text-muted-foreground">库位码生成、条码生成、JSON格式化等实用工具</p>
           </div>
         </div>
         <div className="flex w-full items-center justify-center px-6 lg:w-1/2">
@@ -225,18 +226,18 @@ export function LoginPage({ onLogin, onRegister, onResetPassword, isLoading, err
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
           src="/images/login-hero.png"
-          alt="ToolBox 开发者工具门户"
+          alt="海外仓工具箱"
           className="absolute inset-0 h-full w-full object-cover"
           loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-hero opacity-60" />
         <div className="relative z-10 flex flex-col justify-end p-12">
           <h2 className="text-3xl font-bold text-foreground">
-            一站式开发者工具集合
+            海外仓现场管理工具箱
           </h2>
           <p className="mt-3 max-w-md text-base text-muted-foreground">
-            JSON 格式化、Base64 编解码、时间戳转换等 20+ 常用工具，
-            助力日常开发效率提升
+            库位码生成、条码生成、JSON格式化等实用工具，
+            助力海外仓现场管理效率提升
           </p>
         </div>
       </div>
@@ -246,13 +247,13 @@ export function LoginPage({ onLogin, onRegister, onResetPassword, isLoading, err
         <div className="w-full max-w-sm animate-fade-in">
           {/* Brand */}
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary shadow-glow">
-              <span className="text-2xl font-bold text-primary-foreground">T</span>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl shadow-glow">
+              <AppLogo size={44} />
             </div>
             <h1 className="text-2xl font-bold tracking-tight">
-              Tool<span className="text-gradient">Box</span>
+              海外仓<span className="text-gradient">工具箱</span>
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground">开发者工具门户</p>
+            <p className="mt-2 text-sm text-muted-foreground">现场管理工具门户</p>
           </div>
 
           {/* New Account Notification */}

@@ -119,7 +119,7 @@ export default function VersionLogPage() {
 
         {/* Footer */}
         <div className="mt-10 text-center text-xs text-muted-foreground">
-          ToolBox 开发者工具门户 · 持续迭代中 · 大帅哥出品，必属精品
+          海外仓工具箱 · 现场管理工具门户 · 持续迭代中 · 大帅哥出品，必属精品
         </div>
       </div>
     </div>
